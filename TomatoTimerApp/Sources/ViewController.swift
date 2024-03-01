@@ -18,7 +18,12 @@ class ViewController: UIViewController {
     
     lazy var shapeView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: isWorkTime ? "circle.tomato" : "circle.green")
+        if isWorkTime {
+            imageView.image = UIImage(named: "Ellipse 1")
+        } else {
+            imageView.image = UIImage(named: "Ellipse 1-2")
+        }
+        //imageView.image = UIImage(named: isWorkTime ? "Ellipse 1" : "Ellipse 1-2")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -36,7 +41,7 @@ class ViewController: UIViewController {
     
     lazy var startButton: UIButton = {
         let button = UIButton()
-        let buttonImage = UIImage(named: "play")
+        let buttonImage = UIImage(systemName: "play")
         let scaledImage = UIImage(cgImage: buttonImage!.cgImage!, scale: 1.0, orientation: .up)
         
         button.setImage(scaledImage, for: .normal)
@@ -93,12 +98,12 @@ class ViewController: UIViewController {
         if !isStarted {
             timerOne = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
             
-            let pauseImage = UIImage(named: "pause")
+            let pauseImage = UIImage(systemName: "pause")
             let scaledPauseImage = UIImage(cgImage: pauseImage!.cgImage!, scale: 1.0, orientation: .up)
             startButton.setImage(scaledPauseImage, for: .normal)
         } else {
             timerOne.invalidate()
-            let playImage = UIImage(named: "play")
+            let playImage = UIImage(systemName: "play")
             let scaledPlayImage = UIImage(cgImage: playImage!.cgImage!, scale: 1.0, orientation: .up)
             startButton.setImage(scaledPlayImage, for: .normal)
         }
@@ -124,7 +129,7 @@ class ViewController: UIViewController {
     }
     
     private func updateUIForCurrentMode() {
-        let imageName = isWorkTime ? "circle.tomato" : "circle.green"
+        let imageName = isWorkTime ? "Ellipse 1" : "Ellipse 1-2"
         let textColor = isWorkTime ? UIColor.red : UIColor.green
         
         shapeView.image = UIImage(named: imageName)
