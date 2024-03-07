@@ -8,6 +8,7 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
     // MARK: - UI
     var isWorkTime = true {
         didSet {
@@ -15,7 +16,11 @@ class ViewController: UIViewController {
         }
     }
     var isStarted = false
-    
+    var timerOne = Timer()
+    var restTime = 5.0
+    var workTime = 25.0
+    var currentTime = 0.0
+
     lazy var shapeView: UIImageView = {
         let imageView = UIImageView()
         if isWorkTime {
@@ -23,14 +28,13 @@ class ViewController: UIViewController {
         } else {
             imageView.image = UIImage(named: "Ellipse 1-2")
         }
-        //imageView.image = UIImage(named: isWorkTime ? "Ellipse 1" : "Ellipse 1-2")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     lazy var timerLabel: UILabel = {
         let label = UILabel()
-        label.text = isWorkTime ? "25:00" : "05:00"
+        label.text = isWorkTime ? String(workTime) : String(restTime)
         label.font = UIFont.systemFont(ofSize: 70, weight: .light)
         label.textColor = isWorkTime ? .red : .green
         label.numberOfLines = 0
@@ -50,11 +54,6 @@ class ViewController: UIViewController {
         return button
     }()
     
-    // MARK: - Timer
-    
-    var timerOne = Timer()
-    var duration = 25
-    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -62,12 +61,14 @@ class ViewController: UIViewController {
         setupView()
         setupHierarchy()
         setupLayout()
+        updateUIForCurrentMode()
     }
     
     // MARK: - Setups
     
     private func setupView() {
         view.backgroundColor = .white
+        currentTime = workTime
     }
     
     private func setupHierarchy() {
@@ -86,15 +87,14 @@ class ViewController: UIViewController {
             timerLabel.centerXAnchor.constraint(equalTo: shapeView.centerXAnchor),
             timerLabel.centerYAnchor.constraint(equalTo: shapeView.centerYAnchor),
             
-            startButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 610)
+            startButton.centerXAnchor.constraint(equalTo: timerLabel.centerXAnchor),
+            startButton.topAnchor.constraint(equalTo: timerLabel.bottomAnchor, constant: 150)
         ])
     }
     
     // MARK: - Actions
     
-    @objc
-    private func startButtonTapped() {
+    @objc private func startButtonTapped() {
         if !isStarted {
             timerOne = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
             
@@ -107,33 +107,27 @@ class ViewController: UIViewController {
             let scaledPlayImage = UIImage(cgImage: playImage!.cgImage!, scale: 1.0, orientation: .up)
             startButton.setImage(scaledPlayImage, for: .normal)
         }
-        isStarted = !isStarted
+        isStarted.toggle()
     }
     
-    @objc
-    private func timerAction() {
-        duration -= 1
-        let seconds = duration
-        timerLabel.text = String(format: "%02d:%02d", seconds)
-        print(duration)
+    @objc private func timerAction() {
+        currentTime -= 1
+         
+        if currentTime <= 0 {
+            isWorkTime.toggle()
+            currentTime = isWorkTime ? workTime : restTime
+         }
         
-        if duration == 0 {
-            toggleMode()
-        }
-    }
-    
-    private func toggleMode() {
-        isWorkTime = !isWorkTime
-        duration = isWorkTime ? 25 : 5
-        updateUIForCurrentMode()
-    }
+        print(currentTime)
+        timerLabel.text = String(format: "%.0f", currentTime)
+     }
     
     private func updateUIForCurrentMode() {
-        let imageName = isWorkTime ? "Ellipse 1" : "Ellipse 1-2"
+        let imageName = isWorkTime ? UIImage(named: "Ellipse 1") : UIImage(named: "Ellipse 1-2")
         let textColor = isWorkTime ? UIColor.red : UIColor.green
         
-        shapeView.image = UIImage(named: imageName)
-        timerLabel.text = isWorkTime ? "25:00" : "05:00"
+        shapeView.image = imageName
+        timerLabel.text = isWorkTime ? String(workTime) : String(currentTime)
         timerLabel.textColor = textColor
     }
 }
